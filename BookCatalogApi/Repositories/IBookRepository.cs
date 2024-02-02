@@ -1,8 +1,10 @@
-﻿using BookCatalogApi.Model;
+﻿using BookCatalogApi.Models;
 
-public interface IBookRepository
+namespace BookCatalogApi.Repositories
 {
-    Task<IEnumerable<Book>> GetBooksAsync();
-    Task<Book> GetBookByIdAsync(int id);
-    Task<IEnumerable<Book>> GetBooksByCategoryIdAsync(int categoryId);
+    public interface IBookRepository
+    {
+        IQueryable<Book> GetBooksFilteredAndPaged(int categoryId, int pageNumber, int pageSize);
+        Task<IEnumerable<Book>> GetAllAsync();
+    }
 }

@@ -1,40 +1,64 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BookCatalogApi.Commands;
+using BookCatalogApi.Models;
+using BookCatalogApi.Queries;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
-[ApiController]
-[Route("api/[controller]")]
-public class BooksController : ControllerBase
+namespace BookCatalogApi.Controllers
 {
-    private readonly IBookRepository _bookRepository;
-
-    public BooksController(IBookRepository bookRepository)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class BooksController : ControllerBase
     {
-        _bookRepository = bookRepository;
-    }
+        private readonly IMediator _mediator;
+        private readonly IMemoryCache _cache;
 
-    [HttpGet]
-    public async Task<IEnumerable<BookDto>> GetBooks()
-    {
-        var books = await _bookRepository.GetBooksAsync();
-        return books.Select(book => new BookDto(book.Id, book.CategoryId, book.Title, book.Description, book.PublishDateUtc));
-    }
-
-    [HttpGet("{id}")]
-    public async Task<ActionResult<BookDto>> GetBookById(int id)
-    {
-        var book = await _bookRepository.GetBookByIdAsync(id);
-
-        if (book == null)
+        public BooksController(IMediator mediator, IMemoryCache cache)
         {
+            _mediator = mediator;
+            _cache = cache;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        {
+            if (_cache.TryGetValue("AllBooks", out IEnumerable<Book>? allBooksFromCache))
+            {
+                return Ok(allBooksFromCache);
+            }
+
+            var query = new GetAllBooksQuery();
+            allBooksFromCache = await _mediator.Send(query);
+
+            if (allBooksFromCache.Any())
+            {
+                var cacheEntryOptions = new MemoryCacheEntryOptions
+                {
+                    SlidingExpiration = TimeSpan.FromMinutes(30)
+                };
+
+                _cache.Set("AllBooks", allBooksFromCache, cacheEntryOptions);
+
+                return Ok(allBooksFromCache);
+            }
+
             return NotFound();
         }
 
-        return new BookDto(book.Id, book.CategoryId, book.Title, book.Description, book.PublishDateUtc);
-    }
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<Book>>> FilterBooks([FromQuery] GetBooksQuery query)
+        {
+            var filteredBooks = await _mediator.Send(query);
+            return Ok(filteredBooks);
+        }
 
-    [HttpGet("category/{categoryId}")]
-    public async Task<IEnumerable<BookDto>> GetBooksByCategoryId(int categoryId)
-    {
-        var books = await _bookRepository.GetBooksByCategoryIdAsync(categoryId);
-        return books.Select(book => new BookDto(book.Id, book.CategoryId, book.Title, book.Description, book.PublishDateUtc));
+        [HttpPost]
+        public async Task<ActionResult<int>> CreateBook([FromBody] CreateBookCommand command)
+        {
+            var bookId = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(GetBooks), new { id = bookId }, bookId);
+        }
     }
 }

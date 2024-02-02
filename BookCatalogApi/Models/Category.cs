@@ -1,4 +1,4 @@
-﻿namespace BookCatalogApi.Model
+﻿namespace BookCatalogApi.Models
 {
     public class Category
     {

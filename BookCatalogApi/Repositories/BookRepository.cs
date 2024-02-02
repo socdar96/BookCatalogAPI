@@ -1,27 +1,30 @@
-﻿using BookCatalogApi.Model;
+﻿using BookCatalogApi.Data;
+using BookCatalogApi.Models;
 using Microsoft.EntityFrameworkCore;
 
-public class BookRepository : IBookRepository
+namespace BookCatalogApi.Repositories
 {
-    private readonly ApplicationDbContext _context;
-
-    public BookRepository(ApplicationDbContext context)
+    public class BookRepository : IBookRepository
     {
-        _context = context;
-    }
+        private readonly AppDbContext _dbContext;
 
-    public async Task<IEnumerable<Book>> GetBooksAsync()
-    {
-        return await _context.Books.ToListAsync();
-    }
+        public BookRepository(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
 
-    public async Task<Book> GetBookByIdAsync(int id)
-    {
-        return await _context.Books.FindAsync(id);
-    }
+        public IQueryable<Book> GetBooksFilteredAndPaged(int categoryId, int pageNumber, int pageSize)
+        {
+            var query = _dbContext.Books.AsQueryable();
 
-    public async Task<IEnumerable<Book>> GetBooksByCategoryIdAsync(int categoryId)
-    {
-        return await _context.Books.Where(b => b.CategoryId == categoryId).ToListAsync();
+            query = categoryId >= 0 ? query.Where(book => book.CategoryId == categoryId) : query;
+
+            return query.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+        }
+
+        public async Task<IEnumerable<Book>> GetAllAsync()
+        {
+            return await _dbContext.Books.ToListAsync();
+        }
     }
 }

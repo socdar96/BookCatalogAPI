@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\SocDarwynAlcantaraEx\\source\\repos\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj": {}
+    "C:\\Users\\SocDarwynAlcantaraEx\\Downloads\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\SocDarwynAlcantaraEx\\source\\repos\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj": {
+    "C:\\Users\\SocDarwynAlcantaraEx\\Downloads\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\SocDarwynAlcantaraEx\\source\\repos\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj",
+        "projectUniqueName": "C:\\Users\\SocDarwynAlcantaraEx\\Downloads\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj",
         "projectName": "BookCatalogApi",
-        "projectPath": "C:\\Users\\SocDarwynAlcantaraEx\\source\\repos\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj",
+        "projectPath": "C:\\Users\\SocDarwynAlcantaraEx\\Downloads\\BookCatalogApi\\BookCatalogApi\\BookCatalogApi.csproj",
         "packagesPath": "C:\\Users\\SocDarwynAlcantaraEx\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\SocDarwynAlcantaraEx\\source\\repos\\BookCatalogApi\\BookCatalogApi\\obj\\",
+        "outputPath": "C:\\Users\\SocDarwynAlcantaraEx\\Downloads\\BookCatalogApi\\BookCatalogApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\SocDarwynAlcantaraEx\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -41,6 +41,14 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "MediatR": {
+              "target": "Package",
+              "version": "[11.1.0, )"
+            },
+            "MediatR.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[11.1.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.5, )"
@@ -49,9 +57,21 @@
               "target": "Package",
               "version": "[7.0.5, )"
             },
+            "Microsoft.EntityFrameworkCore.InMemory": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[7.0.5, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
