@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BookCatalogApi.Data;
 using BookCatalogApi.Repositories;
-using BookCatalogApi.Handlers;
 using MediatR;
 using Microsoft.OpenApi.Models;
-using BookCatalogApi.Commands;
+using BookCatalogApi.Request.Books.Commands.CreateBook;
+using BookCatalogApi.Commands.CreateBook;
 
 namespace BookCatalogApi
 {
@@ -22,8 +22,8 @@ namespace BookCatalogApi
             services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase("InMemoryDatabase"));
 
-            services.AddTransient<IRequestHandler<CreateBookCommand, int>, CreateBookCommandHandler>();
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IRequestHandler<CreateBookCommand, int>, CreateBookCommandHandler>();
             services.AddMediatR(typeof(Startup).Assembly);
             services.AddMemoryCache();
 

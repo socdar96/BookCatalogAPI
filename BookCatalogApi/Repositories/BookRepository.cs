@@ -26,5 +26,9 @@ namespace BookCatalogApi.Repositories
         {
             return await _dbContext.Books.ToListAsync();
         }
+        public async Task<Book> GetBookByIdAsync(int bookId)
+        {
+            return await _dbContext.Books.FirstOrDefaultAsync(book => book.Id == bookId);
+        }
     }
 }

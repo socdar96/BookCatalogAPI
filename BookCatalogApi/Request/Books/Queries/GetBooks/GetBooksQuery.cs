@@ -1,7 +1,7 @@
 ﻿using BookCatalogApi.Models;
 using MediatR;
 
-namespace BookCatalogApi.Queries
+namespace BookCatalogApi.Request.Books.Queries.GetBooks
 {
     public class GetBooksQuery : IRequest<IEnumerable<Book>>
     {

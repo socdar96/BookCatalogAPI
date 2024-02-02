@@ -1,6 +1,12 @@
-﻿using BookCatalogApi.Commands;
+﻿using BookCatalogApi.Commands.CreateBook;
+using BookCatalogApi.Dtos;
 using BookCatalogApi.Models;
-using BookCatalogApi.Queries;
+using BookCatalogApi.Request.Books.Commands.CreateBook;
+using BookCatalogApi.Request.Books.Commands.DeleteBook;
+using BookCatalogApi.Request.Books.Commands.UpdateBook;
+using BookCatalogApi.Request.Books.Queries.GetAllBooks;
+using BookCatalogApi.Request.Books.Queries.GetBook;
+using BookCatalogApi.Request.Books.Queries.GetBooks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -20,37 +26,49 @@ namespace BookCatalogApi.Controllers
             _cache = cache;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Book>> GetBookById(int id)
         {
-            if (_cache.TryGetValue("AllBooks", out IEnumerable<Book>? allBooksFromCache))
+            var book = await _mediator.Send(new GetBookQuery { BookId = id });
+
+            if (book != null)
             {
-                return Ok(allBooksFromCache);
-            }
-
-            var query = new GetAllBooksQuery();
-            allBooksFromCache = await _mediator.Send(query);
-
-            if (allBooksFromCache.Any())
-            {
-                var cacheEntryOptions = new MemoryCacheEntryOptions
-                {
-                    SlidingExpiration = TimeSpan.FromMinutes(30)
-                };
-
-                _cache.Set("AllBooks", allBooksFromCache, cacheEntryOptions);
-
-                return Ok(allBooksFromCache);
+                return Ok(book);
             }
 
             return NotFound();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
+        {
+            var allBooksFromCache = await _cache.GetOrCreateAsync("AllBooks", async entry =>
+            {
+                var result = await _mediator.Send(new GetAllBooksQuery());
+
+                if (result.Any())
+                {
+                    entry.SlidingExpiration = TimeSpan.FromMinutes(30);
+                    return result;
+                }
+
+                return Enumerable.Empty<Book>();
+            });
+
+            return allBooksFromCache.Any() ? Ok(allBooksFromCache) : NotFound();
         }
 
         [HttpGet("filter")]
         public async Task<ActionResult<IEnumerable<Book>>> FilterBooks([FromQuery] GetBooksQuery query)
         {
             var filteredBooks = await _mediator.Send(query);
-            return Ok(filteredBooks);
+
+            if (filteredBooks != null && filteredBooks.Any())
+            {
+                return Ok(filteredBooks);
+            }
+
+            return NotFound();
         }
 
         [HttpPost]
@@ -59,6 +77,35 @@ namespace BookCatalogApi.Controllers
             var bookId = await _mediator.Send(command);
 
             return CreatedAtAction(nameof(GetBooks), new { id = bookId }, bookId);
+        }
+
+        [HttpPut]
+        public async Task<ActionResult<bool>> UpdateBook([FromBody] UpdateBookCommand command)
+        {
+            var result = await _mediator.Send(command);
+
+            if (result)
+            {
+                _cache.Remove("AllBooks");
+
+                return Ok();
+            }
+
+            return NotFound();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<bool>> DeleteBook(int id)
+        {
+            var command = new DeleteBookCommand { BookId = id };
+            var result = await _mediator.Send(command);
+
+            if (result)
+            {
+                return Ok(true);
+            }
+
+            return NotFound();
         }
     }
 }

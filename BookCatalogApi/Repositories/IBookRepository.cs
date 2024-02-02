@@ -6,5 +6,6 @@ namespace BookCatalogApi.Repositories
     {
         IQueryable<Book> GetBooksFilteredAndPaged(int categoryId, int pageNumber, int pageSize);
         Task<IEnumerable<Book>> GetAllAsync();
+        Task<Book> GetBookByIdAsync(int bookId);
     }
 }
